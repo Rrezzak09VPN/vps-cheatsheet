@@ -21,6 +21,22 @@ sudo apt update && sudo apt upgrade -y && sudo apt autoremove && sudo apt autocl
 
 ---
 
+## 🔐 Безопасность
+
+### Генерация надёжного пароля
+
+```bash
+openssl rand -base64 48
+```
+
+### Смена текущего пароля пользователя
+
+```bash
+passwd
+```
+
+---
+
 ## 🚀 Включение BBR (TCP congestion control)
 
 BBR (Bottleneck Bandwidth and Round-trip propagation time) — современный алгоритм управления перегрузкой TCP, разработанный Google. Дает прирост скорости на серверах с высоким RTT и потерями пакетов.
@@ -61,22 +77,6 @@ sysctl net.ipv4.tcp_congestion_control
 
 lsmod | grep bbr
 # Должен быть: tcp_bbr                24576  1
-```
-
----
-
-## 🔐 Безопасность
-
-### Генерация надёжного пароля
-
-```bash
-openssl rand -base64 48
-```
-
-### Смена текущего пароля пользователя
-
-```bash
-passwd
 ```
 
 ---
