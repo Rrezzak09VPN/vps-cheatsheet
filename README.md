@@ -1,6 +1,6 @@
 # 🖥️ VPS Cheatsheet
 
-> Полезные команды для управления и администрирования VPS сервера  
+> Полезные команды для управления и администрирования VPS сервера
 > 📌 **Репозиторий только для ознакомления** — не вносите изменения в чужие конфиги без понимания что делаете!
 
 ---
@@ -17,6 +17,50 @@ sudo apt update && sudo apt upgrade -y
 
 ```bash
 sudo apt update && sudo apt upgrade -y && sudo apt autoremove && sudo apt autoclean
+```
+
+---
+
+## 🚀 Включение BBR (TCP congestion control)
+
+BBR (Bottleneck Bandwidth and Round-trip propagation time) — современный алгоритм управления перегрузкой TCP, разработанный Google. Дает прирост скорости на серверах с высоким RTT и потерями пакетов.
+
+### Проверка, включен ли BBR
+
+```bash
+sysctl net.ipv4.tcp_congestion_control
+lsmod | grep bbr
+```
+
+**Пример вывода, если BBR уже активен:**
+
+```
+net.ipv4.tcp_congestion_control = bbr
+tcp_bbr                24576  1
+```
+
+Если в выводе `bbr` — ничего делать не надо, BBR уже работает ✅
+
+### Включение BBR
+
+Если BBR не включен — выполни одной командой:
+
+```bash
+sudo bash -c '\''
+modprobe tcp_bbr && echo "tcp_bbr" > /etc/modules-load.d/bbr.conf;
+grep -q "tcp_congestion_control=bbr" /etc/sysctl.conf || echo -e "\nnet.core.default_qdisc=fq\nnet.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf;
+sysctl -p
+'\''
+```
+
+### Проверка результата
+
+```bash
+sysctl net.ipv4.tcp_congestion_control
+# Должно быть: net.ipv4.tcp_congestion_control = bbr
+
+lsmod | grep bbr
+# Должен быть: tcp_bbr                24576  1
 ```
 
 ---
@@ -118,6 +162,10 @@ sudo nano /etc/ufw/before.rules
 -A ufw-before-input -p icmp --icmp-type source-quench -j DROP
 ```
 
+**Пример, как должно выглядеть в редакторе:**
+
+![Пример блокировки пинга](img/ping-block-example.jpg)
+
 Перезагрузи UFW:
 
 ```bash
@@ -126,7 +174,7 @@ sudo ufw disable && sudo ufw enable
 
 ### 🔹 Мягкий способ (автоматический)
 
-Всё одной командой:
+Всё одной командой с созданием бэкапов:
 
 ```bash
 # 1. Создаём бэкапы
@@ -211,7 +259,7 @@ fail2ban-client get sshd findtime
 ./RealiTLScanner-windows-64.exe -addr <server_ip>
 ```
 
-> 🔗 [RealiTLScanner на GitHub](https://github.com/XTLS/RealiTLScanner)  
+> 🔗 [RealiTLScanner на GitHub](https://github.com/XTLS/RealiTLScanner)
 > После сканирования — **ручная проверка в браузере**, проверка пинга с сервера, выбор оптимального таргета.
 
 ---
